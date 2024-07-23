@@ -1,8 +1,15 @@
 import React, { useState } from "react";
-import { Peer } from "peerjs";
+import { lobbyLink } from "./CreateLobby";
 
-export function JoinLobby() {
+export function JoinLobby({ name }) {
   const [input, setInput] = useState(null);
+
+  function handleJoin() {
+    if (input !== "") {
+      //navigate to the url
+      window.location.href = lobbyLink(input);
+    }
+  }
 
   return (
     <div className="join-lobby">
@@ -10,12 +17,12 @@ export function JoinLobby() {
         value={input}
         onChange={(e) => setInput(e.target.value)}
         onKeyDown={(e) => {
-          if (e.key === "Enter" && input !== "") {
-            //navigate to the url
+          if (e.key === "Enter") {
+            handleJoin();
           }
         }}
       />
-      <button onClick={() => {}}>Join lobby</button>
+      <button onClick={() => handleJoin()}>Join lobby</button>
     </div>
   );
 }

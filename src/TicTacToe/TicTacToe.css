@@ -9,6 +9,16 @@
   height: 50px;
 }
 
+.reset {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.square--cursor {
+  cursor: pointer;
+}
+
 .board-square {
   margin: 0;
 }

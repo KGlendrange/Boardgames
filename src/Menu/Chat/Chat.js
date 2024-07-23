@@ -4,30 +4,26 @@ import "./Chat.css";
 //a chat app with your connection
 export function Chat({ connection, name }) {
   const mainColor = "purple";
+  const displayName = name || "Guest";
   const [minimize, setMinimize] = useState(false);
   const [input, setInput] = useState("");
   const [texts, setTexts] = useState([
     {
-      name: "Petter",
-      text: "Heisann",
+      type: "chat",
+      name: "System",
+      text: "Welcome to the chat!",
       color: "red"
-    },
-    {
-      name: "Boris",
-      text: "Står til?",
-      color: "blue"
     }
   ]);
 
   function handleClick() {
     const newText = {
-      name,
+      type: "chat",
+      name: displayName,
       text: input,
       color: mainColor
     };
-    console.log("connection inside chat?");
     if (connection) {
-      console.log("yes.., sending data", newText);
       connection.send(newText);
     }
 
@@ -36,21 +32,21 @@ export function Chat({ connection, name }) {
     setInput(""); //clear input
   }
 
-  if (connection) {
-    connection.on("data", (data) => {
-      console.log("data: ", data);
-    });
-  }
-
   useEffect(() => {
     if (connection) {
       connection.on("data", (data) => {
-        console.log("data: ", data);
+        if (data.type !== "chat") {
+          return;
+        }
+        console.log("got some data in chat: ", data);
         setTexts([...texts, data]);
       });
     }
   }, [connection]);
 
+  if (!connection) {
+    return null;
+  }
   return (
     <div className={`chat ${!minimize ? "chat--border" : ""}`}>
       <button className="minimize" onClick={() => setMinimize((prev) => !prev)}>
@@ -67,7 +63,7 @@ export function Chat({ connection, name }) {
             ))}
           </div>
           <div className="input">
-            <span style={{ color: mainColor }}>{name}: </span>
+            <span style={{ color: mainColor }}>{displayName}: </span>
             <input
               className="chat-input"
               value={input}

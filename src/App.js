@@ -1,29 +1,27 @@
-import logo from "./logo.svg";
 import "./App.css";
 import { Peer } from "peerjs";
 import { Menu } from "./Menu/Menu";
 import React, { useEffect, useState } from "react";
 import { TicTacToe } from "./TicTacToe/TicTacToe";
-import { Chat } from "./Chat/Chat";
 
 function App() {
-  const [name, setName] = useState("Guest");
-
   const urlSearchParams = new URLSearchParams(window.location.search);
   const params = Object.fromEntries(urlSearchParams.entries());
+
+  const [name, setName] = useState(localStorage.getItem("name"));
 
   const [peer, setPeer] = useState(null);
   const [connection, setConnection] = useState(null);
 
-  const [input, setInput] = useState(null);
-
   //create a peer
   useEffect(() => {
-    createPeer();
+    if (params.id) {
+      createPeer();
+    }
   }, []);
 
-  function createPeer() {
-    const peer = new Peer();
+  function createPeer(input) {
+    const peer = input ? new Peer(input) : new Peer();
     peer.on("open", (id) => {
       setPeer(peer);
 
@@ -35,6 +33,7 @@ function App() {
         });
       }
     });
+    return peer;
   }
 
   //accept connection from someone else
@@ -48,50 +47,27 @@ function App() {
   useEffect(() => {
     if (connection) {
       connection.on("data", (data) => {
-        console.log("Received", data);
+        //console.log("Received", data);
+        //listen in each of the games instead?
       });
     }
   }, [connection]);
 
-  console.log("peer", peer);
-  console.log("connection", connection);
-
-  function handleClick() {
-    if (connection) {
-      console.log("sending poke");
-      connection.send("poke");
-    }
-  }
-
   return (
     <div className="App">
       <div className="App2">
-        <button onClick={handleClick}>poke</button>
-        <div>
-          <input
-            style={{ width: "500px" }}
-            readOnly
-            value={
-              window.location.origin +
-              window.location.pathname +
-              "?id=" +
-              peer?.id
-            }
-          />
-        </div>
-
-        {/*    <Menu
+        <Menu
           createPeer={createPeer}
-          joinPeer={joinPeer}
+          peer={peer}
           name={name}
           setName={setName}
-        /> */}
-        <TicTacToe connection={connection} />
-        <Chat connection={connection} name={name} />
+          connection={connection}
+        />
+        <TicTacToe peer={peer} connection={connection} ultimate={false} />
       </div>
     </div>
   );
 }
 
-export const BASE_KEY = "GLENDRANGE-PEER-";
+export const BASE_KEY = "-tic-tac-toe";
 export default App;
