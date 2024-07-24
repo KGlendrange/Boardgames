@@ -2,11 +2,22 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   width: auto;
+  padding: 8px;
+}
+
+.ultimate-board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  width: auto;
 }
 
 .square {
   width: 50px;
   height: 50px;
+  font-size: 2em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .reset {
@@ -21,4 +32,8 @@
 
 .board-square {
   margin: 0;
+}
+.ultimate-winner {
+  position: absolute;
+  font-size: 7.5em;
 }

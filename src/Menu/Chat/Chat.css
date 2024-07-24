@@ -5,6 +5,7 @@
   bottom: 0px;
   min-height: 20px;
   min-width: 100px; /* just make the buttons never break word instead*/
+  background-color: white;
 }
 .chat--border {
   border: 2px solid black;

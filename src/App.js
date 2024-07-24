@@ -63,7 +63,7 @@ function App() {
           setName={setName}
           connection={connection}
         />
-        <TicTacToe peer={peer} connection={connection} ultimate={false} />
+        <TicTacToe peer={peer} connection={connection} ultimate={true} />
       </div>
     </div>
   );
