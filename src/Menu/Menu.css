@@ -1,5 +1,11 @@
 .menu {
   gap: 16px;
+  display: grid;
+  place-items: center;
+}
+.lobby {
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  gap: 16px;
 }

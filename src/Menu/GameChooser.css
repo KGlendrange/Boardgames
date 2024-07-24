@@ -1,0 +1,27 @@
+.GameCard {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 400px;
+  height: 150px;
+  border: 2px solid black;
+  border-radius: 10px;
+  background-color: #f0f0f0;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+}
+
+.GameChooser {
+  display: grid;
+  place-items: center;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  padding: 10px;
+}
+
+.GameChooserWrapper {
+  display: Grid;
+  place-items: center;
+}

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import "./TicTacToe.css";
 
 const KEY_TIC_TAC_TOE = "ticTacToe";
 
@@ -10,6 +9,9 @@ export function TicTacToe({ peer, connection, ultimate }) {
   const winner = calculateWinner(board, ultimate);
   const gameOver = winner || isDraw(board, ultimate);
   const imX = peer?.id > connection?.peer;
+  console.log("peerId: ", peer?.id, " connectionPeer: ", connection?.peer);
+  console.log("imX: ", imX);
+  console.log("isXNext: ", isXNext);
   const myTurn = imX === isXNext;
   const [nextUltimateBoard, setNextUltimateBoard] = useState(null);
 
@@ -84,6 +86,7 @@ export function TicTacToe({ peer, connection, ultimate }) {
   if (!connection) {
     return null;
   }
+
   return (
     <div>
       <h1>Tic Tac Toe</h1>
@@ -108,16 +111,16 @@ export function TicTacToe({ peer, connection, ultimate }) {
       ) : (
         renderBoard(board, null, ultimate, !myTurn, handleClick)
       )}
-
       <div className="reset">
         {winner && <p>Winner: {winner}</p>}
 
         {gameOver && !winner && <p>Draw!</p>}
         <div>{gameOver && <button onClick={reset}>Reset</button>}</div>
       </div>
-      {board.every((cell) => cell === null) && !myTurn && (
-        <p>Waiting for other player...</p>
-      )}
+      {(ultimate
+        ? board.every((subBoard) => subBoard.every((cell) => cell === null))
+        : board.every((cell) => cell === null)) &&
+        !myTurn && <p>Waiting for other player...</p>}
     </div>
   );
 }

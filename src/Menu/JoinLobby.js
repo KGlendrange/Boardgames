@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { lobbyLink } from "./CreateLobby";
 
-export function JoinLobby({ name }) {
+export function JoinLobby() {
   const [input, setInput] = useState(null);
 
   function handleJoin() {

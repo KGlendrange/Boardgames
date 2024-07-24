@@ -2,3 +2,5 @@
 @import url("./App.css");
 @import url("./TicTacToe/TicTacToe.css");
 @import url("./Menu/Menu.css");
+@import url("https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@300&display=swap");
+@import url("./Menu/GameChooser.css");

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import "./Chat.css";
 
 //a chat app with your connection
 export function Chat({ connection, name }) {
@@ -40,6 +39,29 @@ export function Chat({ connection, name }) {
         }
         console.log("got some data in chat: ", data);
         setTexts((t) => [...t, data]);
+      });
+      connection.on("open", () => {
+        setTexts((t) => [
+          ...t,
+          {
+            type: "chat",
+            name: "System",
+            text: "Connection opened",
+            color: "red"
+          }
+        ]);
+      });
+      connection.on("close", () => {
+        console.log("connection closed");
+        setTexts((t) => [
+          ...t,
+          {
+            type: "chat",
+            name: "System",
+            text: "Connection closed",
+            color: "red"
+          }
+        ]);
       });
     }
   }, [connection]);

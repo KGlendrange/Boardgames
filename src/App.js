@@ -1,10 +1,15 @@
-import "./App.css";
 import { Peer } from "peerjs";
 import { Menu } from "./Menu/Menu";
 import React, { useEffect, useState, useCallback } from "react";
 import { TicTacToe } from "./TicTacToe/TicTacToe";
+import { Routes, Route, useNavigate } from "react-router-dom";
+import { JoinLobby } from "./Menu/JoinLobby";
+import { StartPage } from "./Menu/StartPage";
+import { Chat } from "./Menu/Chat/Chat";
+import { CreateLobby } from "./Menu/CreateLobby";
 
 function App() {
+  const navigate = useNavigate();
   const urlSearchParams = new URLSearchParams(window.location.search);
   const params = Object.fromEntries(urlSearchParams.entries());
 
@@ -20,8 +25,8 @@ function App() {
         setPeer(peer);
 
         //create connection
-        if (params.id) {
-          const conn = peer.connect(params.id);
+        if (params.lobby) {
+          const conn = peer.connect(params.lobby);
           conn.on("open", () => {
             setConnection(conn);
           });
@@ -29,20 +34,22 @@ function App() {
       });
       return peer;
     },
-    [params.id]
+    [params.lobby]
   );
 
   //create a peer
   useEffect(() => {
-    if (params.id) {
+    if (params.lobby) {
       createPeer();
     }
-  }, [params.id, createPeer]);
+  }, [params.lobby, createPeer]);
 
   //accept connection from someone else
   if (peer) {
     peer.on("connection", (conn) => {
       setConnection(conn);
+      //go to the game from your own url where ?game=TicTacToe should make you path to /TicTacToe
+      navigate(`/${params.game}`);
     });
   }
 
@@ -53,24 +60,39 @@ function App() {
         //console.log("Received", data);
         //listen in each of the games instead?
       });
+      connection.on("close", () => {
+        
+      })
     }
   }, [connection]);
 
+  console.log("peer: ", peer);
+  console.log("connection: ", connection);
   return (
     <div className="App">
-      <div className="App2">
-        <Menu
-          createPeer={createPeer}
-          peer={peer}
-          name={name}
-          setName={setName}
-          connection={connection}
+      <Routes>
+        <Route path="/" element={<StartPage />} />
+        <Route
+          path="/create"
+          element={<CreateLobby createPeer={createPeer} peer={peer} />}
         />
-        <TicTacToe peer={peer} connection={connection} ultimate={true} />
-      </div>
+        <Route path="/join" element={<JoinLobby />} />
+        <Route
+          path="/TicTacToe"
+          element={
+            <TicTacToe peer={peer} connection={connection} ultimate={false} />
+          }
+        />
+        <Route
+          path="/UltimateTicTacToe"
+          element={
+            <TicTacToe peer={peer} connection={connection} ultimate={true} />
+          }
+        />
+      </Routes>
+      <Chat connection={connection} name={name} />
     </div>
   );
 }
 
-export const BASE_KEY = "-tic-tac-toe";
 export default App;

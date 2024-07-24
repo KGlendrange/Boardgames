@@ -1,49 +1,59 @@
 import React, { useState } from "react";
-import { BASE_KEY } from "../App";
 
 export function CreateLobby({ peer, createPeer }) {
   const [input, setInput] = useState(null);
+  const [copiedToClipboard, setCopiedToClipboard] = useState(false);
 
-  const key = input ? input + BASE_KEY : crypto.randomUUID();
+  const key = input ? input : crypto.randomUUID();
 
   const link = lobbyLink(peer?.id);
 
+  console.log("link: ", link);
+
   function handleCreate() {
-    if (input !== "") {
+    console.log("handle create", key);
+    if (input === null || input?.trim() !== "") {
+      console.log("whats sup");
       createPeer(key);
     }
   }
-  if (peer?.id) {
-    try {
-      navigator.clipboard.writeText(link);
-    } catch (e) {
-      console.error("Failed to copy to clipboard: ", e);
-    }
-  }
+
   return (
     <div className="create-lobby">
-      <input
-        value={input}
-        placeholder="Name of lobby"
-        onChange={(e) => setInput(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            handleCreate();
-          }
-        }}
-      />
-      <button onClick={() => handleCreate()}>Create lobby</button>
-      {peer?.id && (
-        <div style={{ marginTop: "24px" }}>
+      {peer?.id ? (
+        <div>
           Give this link to your friend:
           <input
             style={{ width: "100%", minWidth: "280px" }}
             readOnly
             value={link}
           />
-          <span style={{ color: "green" }}>
-            The link should be added to your clipboard
-          </span>
+          <button
+            onClick={() => {
+              try {
+                navigator.clipboard.writeText(link);
+                setCopiedToClipboard(true);
+              } catch (e) {
+                console.error(e);
+              }
+            }}
+          >
+            {copiedToClipboard ? "Copied!" : "Copy to clipboard"}
+          </button>
+        </div>
+      ) : (
+        <div>
+          <input
+            value={input}
+            placeholder="Name of lobby"
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleCreate();
+              }
+            }}
+          />
+          <button onClick={() => handleCreate()}>Create lobby</button>
         </div>
       )}
     </div>
@@ -54,9 +64,15 @@ export function lobbyLink(input) {
   if (!input) {
     return null;
   }
-  const BASE = `${window.location.origin}${window.location.pathname}`;
-  if (input.includes(BASE)) {
+  console.log(window.location);
+  const BASE = window.location.origin;
+  const QUERY = window.location.search;
+
+  const params = new URLSearchParams(QUERY);
+
+  console.log("input: ", input);
+  if (input.includes(BASE) && input.includes("lobby=")) {
     return input;
   }
-  return `${BASE}?id=${input}`;
+  return `${BASE}/${params.get("game")}?lobby=${input}`;
 }
