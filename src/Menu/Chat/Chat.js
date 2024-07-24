@@ -18,14 +18,13 @@ export function Chat({ connection }) {
       color: "red"
     }
   ]);
-
-  const [mainColor] = useState(() => {
-    const takenColors = texts.map((text) => text.color);
-    const availableColors = colors.filter(
-      (color) => !takenColors.includes(color)
-    );
-    return availableColors?.[0] || "navy";
-  });
+  const takenColors = texts
+    .filter((text) => text.name !== name)
+    .map((text) => text.color);
+  const availableColors = colors.filter(
+    (color) => !takenColors.includes(color)
+  );
+  const mainColor = availableColors?.[0] || "navy";
 
   function handleClick() {
     const newText = {
@@ -78,9 +77,9 @@ export function Chat({ connection }) {
     }
   }, [connection]);
 
-  if (!connection) {
+  /*   if (!connection) {
     return null;
-  }
+  } */
   return (
     <div className={`chat ${!minimize ? "chat--border" : "chat-minimize"}`}>
       <div>
