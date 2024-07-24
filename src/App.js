@@ -13,8 +13,6 @@ function App() {
   const lobbyRegex = window.location.href.match(/lobby=([^&]*)/);
   const lobby = lobbyRegex?.length > 1 ? lobbyRegex[1] : undefined;
 
-  const [name, setName] = useState(localStorage.getItem("name"));
-
   const [peer, setPeer] = useState(null);
   const [connection, setConnection] = useState(null);
 
@@ -68,7 +66,7 @@ function App() {
     }
   }, [connection]);
 
- /*  console.log("peer: ", peer);
+  /*  console.log("peer: ", peer);
   console.log("connection: ", connection); */
   return (
     <div className="App">
@@ -95,7 +93,7 @@ function App() {
           }
         />
       </Routes>
-      <Chat connection={connection} name={name} />
+      <Chat connection={connection} />
     </div>
   );
 }
