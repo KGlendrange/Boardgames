@@ -1,5 +1,4 @@
 import { Peer } from "peerjs";
-import { Menu } from "./Menu/Menu";
 import React, { useEffect, useState, useCallback } from "react";
 import { TicTacToe } from "./TicTacToe/TicTacToe";
 import { Routes, Route, useNavigate } from "react-router-dom";
@@ -12,6 +11,7 @@ function App() {
   const navigate = useNavigate();
   const urlSearchParams = new URLSearchParams(window.location.search);
   const params = Object.fromEntries(urlSearchParams.entries());
+  console.log("params: ", params);
 
   const [name, setName] = useState(localStorage.getItem("name"));
 
@@ -60,9 +60,7 @@ function App() {
         //console.log("Received", data);
         //listen in each of the games instead?
       });
-      connection.on("close", () => {
-        
-      })
+      connection.on("close", () => {});
     }
   }, [connection]);
 
@@ -71,19 +69,22 @@ function App() {
   return (
     <div className="App">
       <Routes>
-        <Route path="/" element={<StartPage />} />
+        <Route exact path="/" element={<StartPage />} />
         <Route
+          exact
           path="/create"
           element={<CreateLobby createPeer={createPeer} peer={peer} />}
         />
-        <Route path="/join" element={<JoinLobby />} />
+        <Route exact path="/join" element={<JoinLobby />} />
         <Route
+          exact
           path="/TicTacToe"
           element={
             <TicTacToe peer={peer} connection={connection} ultimate={false} />
           }
         />
         <Route
+          exact
           path="/UltimateTicTacToe"
           element={
             <TicTacToe peer={peer} connection={connection} ultimate={true} />

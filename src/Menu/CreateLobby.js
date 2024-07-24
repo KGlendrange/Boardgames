@@ -66,13 +66,14 @@ export function lobbyLink(input) {
   }
   console.log(window.location);
   const BASE = window.location.origin;
-  const QUERY = window.location.search;
 
-  const params = new URLSearchParams(QUERY);
-
-  console.log("input: ", input);
   if (input.includes(BASE) && input.includes("lobby=")) {
     return input;
   }
-  return `${BASE}/${params.get("game")}?lobby=${input}`;
+
+  const gameRegex = window.location.href.match(/game=([^&]+)/);
+  const gameMatch = gameRegex.length > 1 ? gameRegex[1] : undefined;
+  const res = `${BASE}/${gameMatch ?? ""}?lobby=${input}`;
+  console.log("res:", res);
+  return res;
 }
