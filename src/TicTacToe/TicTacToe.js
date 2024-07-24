@@ -51,7 +51,7 @@ export function TicTacToe({ peer, connection, ultimate }) {
     if (ultimate) {
       const winner = calculateWinner(newBoard[index], false);
       //if the board you are going to has already won, you can choose any
-      if (winner !== null) {
+      if (winner !== null || isDraw(newBoard[index], false)) {
         newNextUltimateBoard = null;
       }
     }
