@@ -9,9 +9,9 @@ import { CreateLobby } from "./Menu/CreateLobby";
 
 function App() {
   const navigate = useNavigate();
-  const urlSearchParams = new URLSearchParams(window.location.search);
-  const params = Object.fromEntries(urlSearchParams.entries());
-  console.log("params: ", params);
+
+  const lobbyRegex = window.location.href.match(/lobby=([^&]*)/);
+  const lobby = lobbyRegex?.length > 1 ? lobbyRegex[1] : undefined;
 
   const [name, setName] = useState(localStorage.getItem("name"));
 
@@ -25,8 +25,8 @@ function App() {
         setPeer(peer);
 
         //create connection
-        if (params.lobby) {
-          const conn = peer.connect(params.lobby);
+        if (lobby) {
+          const conn = peer.connect(lobby);
           conn.on("open", () => {
             setConnection(conn);
           });
@@ -34,22 +34,26 @@ function App() {
       });
       return peer;
     },
-    [params.lobby]
+    [lobby]
   );
 
   //create a peer
   useEffect(() => {
-    if (params.lobby) {
+    if (lobby) {
       createPeer();
     }
-  }, [params.lobby, createPeer]);
+  }, [lobby, createPeer]);
 
   //accept connection from someone else
   if (peer) {
     peer.on("connection", (conn) => {
       setConnection(conn);
       //go to the game from your own url where ?game=TicTacToe should make you path to /TicTacToe
-      navigate(`/${params.game}`);
+      const gameRegex = window.location.href.match(/game=([^&]+)/);
+      const gameMatch = gameRegex?.length > 1 ? gameRegex[1] : undefined;
+      if (gameMatch) {
+        navigate(`/${gameMatch}`);
+      }
     });
   }
 
@@ -64,8 +68,8 @@ function App() {
     }
   }, [connection]);
 
-  console.log("peer: ", peer);
-  console.log("connection: ", connection);
+ /*  console.log("peer: ", peer);
+  console.log("connection: ", connection); */
   return (
     <div className="App">
       <Routes>

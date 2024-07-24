@@ -9,9 +9,6 @@ export function TicTacToe({ peer, connection, ultimate }) {
   const winner = calculateWinner(board, ultimate);
   const gameOver = winner || isDraw(board, ultimate);
   const imX = peer?.id > connection?.peer;
-  console.log("peerId: ", peer?.id, " connectionPeer: ", connection?.peer);
-  console.log("imX: ", imX);
-  console.log("isXNext: ", isXNext);
   const myTurn = imX === isXNext;
   const [nextUltimateBoard, setNextUltimateBoard] = useState(null);
 

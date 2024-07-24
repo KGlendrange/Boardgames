@@ -8,12 +8,8 @@ export function CreateLobby({ peer, createPeer }) {
 
   const link = lobbyLink(peer?.id);
 
-  console.log("link: ", link);
-
   function handleCreate() {
-    console.log("handle create", key);
     if (input === null || input?.trim() !== "") {
-      console.log("whats sup");
       createPeer(key);
     }
   }
@@ -64,8 +60,7 @@ export function lobbyLink(input) {
   if (!input) {
     return null;
   }
-  console.log(window.location);
-  const BASE = window.location.origin;
+  const BASE = window.location.origin + window.location.pathname;
 
   if (input.includes(BASE) && input.includes("lobby=")) {
     return input;
@@ -73,7 +68,6 @@ export function lobbyLink(input) {
 
   const gameRegex = window.location.href.match(/game=([^&]+)/);
   const gameMatch = gameRegex.length > 1 ? gameRegex[1] : undefined;
-  const res = `${BASE}/${gameMatch ?? ""}?lobby=${input}`;
-  console.log("res:", res);
+  const res = `${BASE}#/${gameMatch ?? ""}?lobby=${input}`;
   return res;
 }
