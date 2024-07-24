@@ -15,6 +15,7 @@ export function JoinLobby({ name }) {
     <div className="join-lobby">
       <input
         value={input}
+        placeholder="Name of lobby"
         onChange={(e) => setInput(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === "Enter") {

@@ -39,7 +39,7 @@ export function Chat({ connection, name }) {
           return;
         }
         console.log("got some data in chat: ", data);
-        setTexts([...texts, data]);
+        setTexts((t) => [...t, data]);
       });
     }
   }, [connection]);

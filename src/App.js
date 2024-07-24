@@ -1,7 +1,7 @@
 import "./App.css";
 import { Peer } from "peerjs";
 import { Menu } from "./Menu/Menu";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { TicTacToe } from "./TicTacToe/TicTacToe";
 
 function App() {
@@ -13,28 +13,31 @@ function App() {
   const [peer, setPeer] = useState(null);
   const [connection, setConnection] = useState(null);
 
+  const createPeer = useCallback(
+    (input) => {
+      const peer = input ? new Peer(input) : new Peer();
+      peer.on("open", (id) => {
+        setPeer(peer);
+
+        //create connection
+        if (params.id) {
+          const conn = peer.connect(params.id);
+          conn.on("open", () => {
+            setConnection(conn);
+          });
+        }
+      });
+      return peer;
+    },
+    [params.id]
+  );
+
   //create a peer
   useEffect(() => {
     if (params.id) {
       createPeer();
     }
-  }, []);
-
-  function createPeer(input) {
-    const peer = input ? new Peer(input) : new Peer();
-    peer.on("open", (id) => {
-      setPeer(peer);
-
-      //create connection
-      if (params.id) {
-        const conn = peer.connect(params.id);
-        conn.on("open", () => {
-          setConnection(conn);
-        });
-      }
-    });
-    return peer;
-  }
+  }, [params.id, createPeer]);
 
   //accept connection from someone else
   if (peer) {

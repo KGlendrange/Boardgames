@@ -13,10 +13,18 @@ export function CreateLobby({ peer, createPeer }) {
       createPeer(key);
     }
   }
+  if (peer?.id) {
+    try {
+      navigator.clipboard.writeText(link);
+    } catch (e) {
+      console.error("Failed to copy to clipboard: ", e);
+    }
+  }
   return (
     <div className="create-lobby">
       <input
         value={input}
+        placeholder="Name of lobby"
         onChange={(e) => setInput(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === "Enter") {
@@ -26,8 +34,16 @@ export function CreateLobby({ peer, createPeer }) {
       />
       <button onClick={() => handleCreate()}>Create lobby</button>
       {peer?.id && (
-        <div>
-          <input style={{ width: "100%" }} readOnly value={link} />
+        <div style={{ marginTop: "24px" }}>
+          Give this link to your friend:
+          <input
+            style={{ width: "100%", minWidth: "280px" }}
+            readOnly
+            value={link}
+          />
+          <span style={{ color: "green" }}>
+            The link should be added to your clipboard
+          </span>
         </div>
       )}
     </div>

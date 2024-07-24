@@ -10,16 +10,15 @@ export function Menu({ createPeer, peer, name, setName, connection }) {
         <CreateName name={name} setName={setName} />
       ) : (
         <>
-          {!connection ? (
+          {!connection && (
             <>
               <CreateLobby createPeer={createPeer} peer={peer} />
-              <JoinLobby name={name} />
+              {!peer && <JoinLobby name={name} />}
             </>
-          ) : (
-            <Chat connection={connection} name={name} />
           )}
         </>
       )}
+      <Chat connection={connection} name={name} />
     </div>
   );
 }
