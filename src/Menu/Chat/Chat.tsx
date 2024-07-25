@@ -5,38 +5,22 @@ import { keyDownWasEnter } from "../../utils/utils";
 const colors = ["blue", "green", "purple", "orange", "teal", "maroon", "navy"];
 export const KEY_CHAT = "chat";
 
-type Text = {
-  type: string;
-  name: string;
-  text: string;
-  color: string;
-};
+
+export type Text = {
+	type: string;
+	name: string;
+	text: string;
+	color: string;
+}
 //a chat app with your connection
-export function Chat({
-  name,
-  connections,
-  texts,
-  setTexts,
-}: {
-  name: string | null;
-  connections: DataConnection[];
-  texts: Text[];
-  setTexts: React.Dispatch<React.SetStateAction<Text[]>>;
-}) {
+export function Chat({ name, connections, texts, setTexts }: { name: string | null, connections: DataConnection[], texts: Text[], setTexts: React.Dispatch<React.SetStateAction<Text[]>> }) {
   const [minimize, setMinimize] = useState(false);
   const [internalName, setInternalName] = useState<string | null>(name);
   const [isChangingName, setIsChangingName] = useState(false);
   const displayName = name || "Guest";
 
   const [input, setInput] = useState("");
-  const [texts, setTexts] = useState([
-    {
-      type: KEY_CHAT,
-      name: "System",
-      text: "Welcome to the chat!",
-      color: "red",
-    },
-  ]);
+  
   const takenColors = texts
     .filter((text) => text.name !== name)
     .map((text) => text.color);

@@ -1,7 +1,7 @@
 import Peer from "peerjs";
 import React, { useState } from "react";
 
-export function CreateLobby({ peer }: {peer: Peer | null}) {
+export function CreateLobby({ peer }: {peer: Peer}) {
   const [copiedToClipboard, setCopiedToClipboard] = useState(false);
 
   const link = lobbyLink(peer?.id) ?? "";
