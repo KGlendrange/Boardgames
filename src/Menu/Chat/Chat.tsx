@@ -69,7 +69,6 @@ export function Chat({ name, setName, connections, texts, setTexts }: { name: st
           ]);
         });
         connection.on("close", () => {
-          console.log("connection closed");
           setTexts((t) => [
             ...t,
             {

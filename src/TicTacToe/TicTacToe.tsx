@@ -40,14 +40,18 @@ export function TicTacToe({ peer, connections, ultimate, setTexts } : {peer: Pee
         isXNext: newTurn,
         nextUltimateBoard: null,
       });
-      connection.send({
-        type: KEY_CHAT,
-        name: KEY_TIC_TAC_TOE,
-        color: "red",
-        text: "New round has begun"
-      })
+      // connection.send({
+      //   type: KEY_CHAT,
+      //   name: KEY_TIC_TAC_TOE,
+      //   color: "red",
+      //   text: "New round has begun"
+      // })
     });
   }
+
+  useEffect(() => {
+    reset();
+  },[ultimate]);
 
   function handleClick(board: Board, index: number, subBoardIndex: number) {
     if (
@@ -122,11 +126,12 @@ export function TicTacToe({ peer, connections, ultimate, setTexts } : {peer: Pee
       });
     }
   }, [connections]);
-
+console.log("doing it ultimate? ", ultimate, board);
+const ulti = Array.isArray(board[0]);
   return (
     <div>
       <h1>Tic Tac Toe</h1>
-      {ultimate ? (
+      {ulti ? (
         <div className="ultimate-board">
           {Array.from({length: 9}).map((_,subBoardIndex) =>
             renderBoard(
@@ -152,7 +157,7 @@ export function TicTacToe({ peer, connections, ultimate, setTexts } : {peer: Pee
         {gameOver && !winner && <p>Draw!</p>}
         <div>{gameOver && <button onClick={reset}>Reset</button>}</div>
       </div>
-      {(ultimate
+      {(ulti
         ? (board as UltimateBoard).every((subBoard) => subBoard.every((cell) => cell === null))
         : (board as NormalBoard).every((cell) => cell === null)) &&
         !myTurn && <p>Waiting for other player...</p>}
@@ -225,6 +230,7 @@ function isDraw(board: Board): boolean {
 
 function initializeBoard(ultimate: boolean): Board {
   if (ultimate) {
+    console.log("new ultimate board");
     return Array(9)
       .fill(null)
       .map(() => initializeBoard(false)) as UltimateBoard;
