@@ -1,7 +1,7 @@
 import { DataConnection, Peer } from "peerjs";
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { TicTacToe } from "./TicTacToe/TicTacToe";
-import { Routes, Route, useNavigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import { StartPage } from "./Menu/StartPage";
 import { Chat, KEY_CHAT, Text } from "./Menu/Chat/Chat";
 import { CreateLobby } from "./Menu/CreateLobby";
@@ -18,16 +18,10 @@ export type DataMessage = {
 };
 
 export default function App() {
-  const navigate = useNavigate();
 
   const lobbyRegex = window.location.href.match(/lobby=([^&]*)/);
   const lobby =
     lobbyRegex !== null && lobbyRegex?.length > 1 ? lobbyRegex[1] : undefined;
-
-  const gameRegex = window.location.href.match(/game=([^&]*)/);
-  const game =
-	  gameRegex !== null && gameRegex?.length > 1 ? gameRegex[1] : undefined;
-
 
 const [texts, setTexts] = useState<Text[]>([
 		{
@@ -59,7 +53,7 @@ const [texts, setTexts] = useState<Text[]>([
 
   useEffect(() => {
     const peer = new Peer();
-    peer.on("open", (id: string) => {
+    peer.on("open", () => {
       setPeer(peer);
       if (lobby) {
         connectToPeer(lobby, peer);
@@ -67,7 +61,6 @@ const [texts, setTexts] = useState<Text[]>([
     });
     peer.on("connection", (newConnection: DataConnection) => {
       newConnection.on("data", (data: unknown) => {
-		console.log("we got some data: ", data);
         const message = data as DataMessage;
         if (message.type === "update") {
           setState(message.state);
@@ -84,11 +77,6 @@ const [texts, setTexts] = useState<Text[]>([
             .filter((c) => c.connectionId !== newConnection.connectionId)
             .map((c) => c.peer),
         });
-		//go to the game you invited them to
-		console.log("go to the game now: ", game);
-		if (game) {
-			navigate(`${game}`);
-		}
       });
     });
 
@@ -104,7 +92,6 @@ const [texts, setTexts] = useState<Text[]>([
       newConnection.on("open", () => {
         setConnections((connections) => [...connections, newConnection]);
         newConnection.on("data", (data: unknown) => {
-			console.log("we got some data123: ", data);
           const message = data as DataMessage;
           setState(message.state);
           if (message.peers) {
@@ -128,23 +115,17 @@ const [texts, setTexts] = useState<Text[]>([
       });
   }
 
-  const updateState = (newState: State) => {
-    setState(newState);
-    connections.forEach((connection) =>
-      connection.send({ type: "update", state: newState }),
-    );
-  };
+  const gamePath = window.location.hash.substring(1);
 
-  console.log("peer: ", peer);
+  console.log("peer: ", peer?.id);
   console.log("connections: ", connections);
-  console.log("state", state);
   return (
     <div className="App">
+      {peer && gamePath && connections.length === 0 && <CreateLobby peer={peer} />}
       <Routes>
         <Route path="/" element={<StartPage />} />
       
         {peer && <>
-			<Route path="/create" element={<CreateLobby peer={peer} />} />
 			<Route
           path="/TicTacToe"
           element={
@@ -158,7 +139,7 @@ const [texts, setTexts] = useState<Text[]>([
           }
         /></>}
       </Routes>
-      <Chat name={name} connections={connections} texts={texts} setTexts={setTexts} />
+      <Chat name={name} setName={setName} connections={connections} texts={texts} setTexts={setTexts} />
     </div>
   );
 }

@@ -34,7 +34,7 @@ export function GameChooser() {
 
 function GameCard({ game }: {game: Game}) {
   return (
-    <Link to={"/create?game=" + game.path} className="GameCard">
+    <Link to={game.path} className="GameCard">
       <h2>{game.title}</h2>
       <p>{game.description}</p>
     </Link>

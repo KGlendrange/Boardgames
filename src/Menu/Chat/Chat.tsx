@@ -6,16 +6,16 @@ const colors = ["blue", "green", "purple", "orange", "teal", "maroon", "navy"];
 export const KEY_CHAT = "chat";
 
 
+
 export type Text = {
-	type: string;
+	type: typeof KEY_CHAT;
 	name: string;
 	text: string;
 	color: string;
 }
 //a chat app with your connection
-export function Chat({ name, connections, texts, setTexts }: { name: string | null, connections: DataConnection[], texts: Text[], setTexts: React.Dispatch<React.SetStateAction<Text[]>> }) {
+export function Chat({ name, setName, connections, texts, setTexts }: { name: string | null, setName: React.Dispatch<React.SetStateAction<string | null>>,connections: DataConnection[], texts: Text[], setTexts: React.Dispatch<React.SetStateAction<Text[]>> }) {
   const [minimize, setMinimize] = useState(false);
-  const [internalName, setInternalName] = useState<string | null>(name);
   const [isChangingName, setIsChangingName] = useState(false);
   const displayName = name || "Guest";
 
@@ -30,7 +30,7 @@ export function Chat({ name, connections, texts, setTexts }: { name: string | nu
   const mainColor = availableColors?.[0] || "navy";
 
   function handleClick() {
-    const newText = {
+    const newText: Text = {
       type: KEY_CHAT,
       name: displayName,
       text: input,
@@ -50,12 +50,12 @@ export function Chat({ name, connections, texts, setTexts }: { name: string | nu
   useEffect(() => {
     if (connections.length > 0) {
       connections.forEach((connection) => {
-        connection.on("data", (data: any) => {
-          if (data.type !== KEY_CHAT) {
+        connection.on("data", (data: unknown) => {
+          const message = data as Text;
+          if (message.type !== KEY_CHAT) {
             return;
           }
-          console.log("got some data in chat: ", data);
-          setTexts((t) => [...t, data]);
+          setTexts((t) => [...t, message]);
         });
         connection.on("open", () => {
           setTexts((t) => [
@@ -110,7 +110,7 @@ export function Chat({ name, connections, texts, setTexts }: { name: string | nu
             onKeyDown={keyDownWasEnter((e) => {
               const target = e.currentTarget as HTMLInputElement;
               localStorage.setItem("name", target.value);
-              setInternalName(target.value);
+              setName(target.value);
               setIsChangingName(false);
             })}
           />
@@ -129,6 +129,9 @@ export function Chat({ name, connections, texts, setTexts }: { name: string | nu
             ))}
           </div>
           <div className="input">
+              <div style={{color: mainColor, display: "flex"}}>
+                {displayName}:
+              </div>
             <input
               className="chat-input"
               value={input}
