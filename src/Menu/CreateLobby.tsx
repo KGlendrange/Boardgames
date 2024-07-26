@@ -1,5 +1,5 @@
 import Peer from "peerjs";
-import React, { useState } from "react";
+import { useState } from "react";
 
 export function CreateLobby({ peer }: {peer: Peer}) {
   const [copiedToClipboard, setCopiedToClipboard] = useState(false);
@@ -47,8 +47,7 @@ export function lobbyLink(input?: string) {
     return input;
   }
 
-  const gameRegex = window.location.href.match(/game=([^&]+)/);
-  const gameMatch = gameRegex !== null && gameRegex.length > 1 ? gameRegex[1] : undefined;
-  const res = `${BASE}#/${gameMatch ?? ""}?lobby=${input}`;
+  const game = window.location.hash;
+  const res = `${BASE}${game}?lobby=${input}`;
   return res;
 }

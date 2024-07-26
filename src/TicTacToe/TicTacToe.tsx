@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { KEY_CHAT, Text } from "../Menu/Chat/Chat";
 import Peer, { DataConnection } from "peerjs";
 
-const KEY_TIC_TAC_TOE = "ticTacToe";
+const KEY_TIC_TAC_TOE = "TicTacToe";
 type Mark = "✖️" | "⭕";
 
 type NormalBoard = (Mark | null)[];
@@ -21,8 +21,8 @@ export function TicTacToe({ peer, connections, ultimate, setTexts } : {peer: Pee
   const [board, setBoard] = useState<Board>(initializeBoard(ultimate));
   const [isXStartingNextGame, setIsXStartingNextGame] = useState<boolean>(true);
   const [isXNext, setIsXNext] = useState<boolean>(isXStartingNextGame);
-  const winner = calculateWinner(board, ultimate);
-  const gameOver = winner || isDraw(board, ultimate);
+  const winner = calculateWinner(board);
+  const gameOver = winner || isDraw(board);
   const imX = peer.id > connections?.[0]?.peer;
   const myTurn = imX === isXNext;
   const [nextUltimateBoard, setNextUltimateBoard] = useState<number|null>(null);
@@ -40,21 +40,27 @@ export function TicTacToe({ peer, connections, ultimate, setTexts } : {peer: Pee
         isXNext: newTurn,
         nextUltimateBoard: null,
       });
+      connection.send({
+        type: KEY_CHAT,
+        name: KEY_TIC_TAC_TOE,
+        color: "red",
+        text: "New round has begun"
+      })
     });
   }
 
-  function handleClick(board: Board, index: number, ultimate: boolean, subBoardIndex: number) {
+  function handleClick(board: Board, index: number, subBoardIndex: number) {
     if (
       connections.length === 0 ||
       !myTurn ||
-      getCell(board, index, ultimate, subBoardIndex) ||
+      getCell(board, index, subBoardIndex) ||
       winner
     ) {
       return;
     }
     const newBoard = [...board] as Board;
     const newCellValue: Mark = isXNext ? "✖️" : "⭕";
-    if (ultimate) {
+    if (Array.isArray(board[0])) {
       (newBoard as UltimateBoard)[subBoardIndex][index] = newCellValue;
     } else {
       newBoard[index] = newCellValue;
@@ -64,13 +70,13 @@ export function TicTacToe({ peer, connections, ultimate, setTexts } : {peer: Pee
     setBoard(newBoard);
     setIsXNext(newTurn);
     let newNextUltimateBoard: number | null = index;
-    const checkWinner = calculateWinner(newBoard, ultimate);
+    const checkWinner = calculateWinner(newBoard);
 
-    if (ultimate) {
+    if (Array.isArray(board[0])) {
       //if the board you are going to has already won, you can choose any
       if (
-        calculateWinner(newBoard[index] as NormalBoard, false) !== null ||
-        isDraw(newBoard[index] as NormalBoard, false)
+        calculateWinner(newBoard[index] as NormalBoard) !== null ||
+        isDraw(newBoard[index] as NormalBoard)
       ) {
         newNextUltimateBoard = null;
       }
@@ -83,14 +89,15 @@ export function TicTacToe({ peer, connections, ultimate, setTexts } : {peer: Pee
         isXNext: newTurn,
         nextUltimateBoard: newNextUltimateBoard,
       });
-      const winnerText = {
+      const winnerText: Text = {
         type: KEY_CHAT,
-        name: "TicTacToe",
+        name: KEY_TIC_TAC_TOE,
         color: "red",
         text: `${checkWinner} has Won!`,
       };
-      setTexts((currentTexts) => ({ ...currentTexts, winnerText }));
+      
       if (checkWinner) {
+        setTexts((currentTexts) => ([ ...currentTexts, winnerText ]));
         connection.send(winnerText);
       }
     });
@@ -125,7 +132,6 @@ export function TicTacToe({ peer, connections, ultimate, setTexts } : {peer: Pee
             renderBoard(
               board,
               subBoardIndex,
-              ultimate,
               !myTurn ||
                 calculateDisabled(
                   board,
@@ -138,7 +144,7 @@ export function TicTacToe({ peer, connections, ultimate, setTexts } : {peer: Pee
           )}
         </div>
       ) : (
-        renderBoard(board, -1, ultimate, !myTurn, handleClick)
+        renderBoard(board, -1, !myTurn, handleClick)
       )}
       <div className="reset">
         {winner && <p>Winner: {winner}</p>}
@@ -158,9 +164,9 @@ function calculateDisabled(
   board: Board,
   subBoardIndex: number,
   nextUltimateBoard: number | null,
-  calculateWinner: Function,
+  calculateWinner: (squares: Board) => Mark | null,
 ) {
-  const alreadyWon = calculateWinner(board[subBoardIndex], false) !== null;
+  const alreadyWon = calculateWinner(Array.isArray(board[0]) ? (board as UltimateBoard)[subBoardIndex] : board) !== null;
   const forcedToPickThisOne = nextUltimateBoard === subBoardIndex;
   const chooseAny = nextUltimateBoard === null;
   //should be enabled if chooseAny, unless alreadyWon!
@@ -168,7 +174,7 @@ function calculateDisabled(
 
   //should be DISABLED if alreadyWon and !forcedToPickThisOne (check !== null)
   //should be ENABLED if chooseAny
-  let res = !forcedToPickThisOne;
+  const res = !forcedToPickThisOne;
 
   if (alreadyWon) {
     return true;
@@ -179,8 +185,9 @@ function calculateDisabled(
   return res;
 }
 
-function renderBoard(board: Board, subBoardIndex: number, ultimate: boolean, disabled: boolean, handleClick: Function) {
-  const winner = calculateWinner(ultimate ? (board as UltimateBoard)[subBoardIndex] : board, ultimate);
+function renderBoard(board: Board, subBoardIndex: number, disabled: boolean, handleClick: (board: Board, index: number, subBoardIndex: number) => void) {
+  const ultimate = Array.isArray(board[0]);
+  const winner = calculateWinner(ultimate ? (board as UltimateBoard)[subBoardIndex] : board);
   return (
     <div key={subBoardIndex}>
       {ultimate && winner && <div className={`ultimate-winner`}>{winner}</div>}
@@ -190,9 +197,9 @@ function renderBoard(board: Board, subBoardIndex: number, ultimate: boolean, dis
             <button
               disabled={disabled || winner !== null}
               className={`square ${!disabled ? "square--cursor" : ""}`}
-              onClick={() => handleClick(board, index, ultimate, subBoardIndex)}
+              onClick={() => handleClick(board, index, subBoardIndex)}
             >
-              {getCell(board, index, ultimate, subBoardIndex) || ""}
+              {getCell(board, index, subBoardIndex) || ""}
             </button>
           </div>
         ))}
@@ -201,17 +208,17 @@ function renderBoard(board: Board, subBoardIndex: number, ultimate: boolean, dis
   );
 }
 
-function getCell(board: Board, index: number, ultimate: boolean, subBoardIndex: number): Mark | null {
-  if (ultimate) {
+function getCell(board: Board, index: number, subBoardIndex: number): Mark | null {
+  if (Array.isArray(board[0])) {
     return (board as UltimateBoard)[subBoardIndex][index];
   }
 
   return (board as NormalBoard)[index];
 }
 
-function isDraw(board: Board, ultimate: boolean): boolean {
+function isDraw(board: Board): boolean {
   if (Array.isArray(board[0])) {
-    return (board as UltimateBoard).every((subBoard) => isDraw(subBoard, false));
+    return (board as UltimateBoard).every((subBoard) => isDraw(subBoard));
   }
   return !(board as NormalBoard).includes(null);
 }
@@ -225,12 +232,12 @@ function initializeBoard(ultimate: boolean): Board {
   return Array(9).fill(null);
 }
 
-function calculateWinner(squares: Board, ultimate: boolean): Mark | null {
+function calculateWinner(squares: Board): Mark | null {
   // Type guard to handle nested boards
   if (Array.isArray(squares[0])) {
     // Nested board case
     for (let i = 0; i < squares.length; i++) {
-      const result = calculateWinner(squares[i] as NormalBoard, false);
+      const result = calculateWinner(squares[i] as NormalBoard);
       if (result) {
         return result;
       }
