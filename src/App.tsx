@@ -132,7 +132,6 @@ const [texts, setTexts] = useState<Text[]>([
   return (
     <div className="App">
       <NavBar/>
-      {state?.game?.title}
       {peer && state.game && connections.length === 0 && <CreateLobby peer={peer} />}
       <Routes>
         <Route path="/" element={<StartPage name={name} connections={connections} setState={setState}/>} />

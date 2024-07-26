@@ -126,7 +126,6 @@ export function TicTacToe({ peer, connections, ultimate, setTexts } : {peer: Pee
       });
     }
   }, [connections]);
-console.log("doing it ultimate? ", ultimate, board);
 const ulti = Array.isArray(board[0]);
   return (
     <div>
@@ -230,7 +229,6 @@ function isDraw(board: Board): boolean {
 
 function initializeBoard(ultimate: boolean): Board {
   if (ultimate) {
-    console.log("new ultimate board");
     return Array(9)
       .fill(null)
       .map(() => initializeBoard(false)) as UltimateBoard;
